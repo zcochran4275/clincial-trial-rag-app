@@ -1,4 +1,4 @@
-"""The RAG agent: Claude decides per question whether to search text, run SQL, or both.
+"""The RAG agent: the model decides per question whether to search text, run SQL, or both.
 
 Returns the answer plus a trace (every tool call, retrieved chunk IDs, cited NCT IDs) so the
 eval harness can score retrieval and citation faithfulness, not just the final text.
@@ -10,9 +10,10 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from trial_signal import llm
 from trial_signal.rag.tools import TOOLS, Backend, run_tool
 
-MODEL = "claude-sonnet-5-5"
+MODEL = llm.MODEL
 MAX_TURNS = 8
 
 SYSTEM = """You answer questions about completed clinical trials of HER2-targeted cancer drugs and
@@ -50,27 +51,29 @@ def _record(trace: Trace, name: str, args: dict, output: str) -> None:
 
 def answer(question: str, backend: Backend, client=None, model: str = MODEL) -> Trace:
     if client is None:
-        import anthropic
-
-        client = anthropic.Anthropic()
+        client = llm.client()
     trace = Trace(question=question)
-    messages: list[dict[str, Any]] = [{"role": "user", "content": question}]
+    tools = llm.openai_tools(TOOLS)
+    messages: list[dict[str, Any]] = [{"role": "system", "content": SYSTEM}, {"role": "user", "content": question}]
     for turn in range(1, MAX_TURNS + 1):
-        resp = client.messages.create(model=model, max_tokens=2048, system=SYSTEM, tools=TOOLS, messages=messages)
+        resp = client.chat.completions.create(model=model, max_completion_tokens=8192, tools=tools, messages=messages)
+        msg = resp.choices[0].message
         trace.turns = turn
-        trace.input_tokens += resp.usage.input_tokens
-        trace.output_tokens += resp.usage.output_tokens
-        messages.append({"role": "assistant", "content": resp.content})
-        if resp.stop_reason != "tool_use":
-            trace.answer = "".join(b.text for b in resp.content if b.type == "text")
+        trace.input_tokens += resp.usage.prompt_tokens
+        trace.output_tokens += resp.usage.completion_tokens
+        messages.append(llm.assistant_message(msg))
+        if not msg.tool_calls:
+            trace.answer = msg.content or ""
             break
-        results = []
-        for block in resp.content:
-            if block.type == "tool_use":
-                out = run_tool(block.name, block.input, backend)
-                _record(trace, block.name, block.input, out)
-                results.append({"type": "tool_result", "tool_use_id": block.id, "content": out})
-        messages.append({"role": "user", "content": results})
+        for tc in msg.tool_calls:
+            try:
+                args = llm.tool_args(tc)
+            except ValueError as e:
+                args, out = {}, json.dumps({"error": f"bad arguments: {e}"})
+            else:
+                out = run_tool(tc.function.name, args, backend)
+            _record(trace, tc.function.name, args, out)
+            messages.append(llm.tool_result(tc, out))
     else:
         trace.answer = "I couldn't finish within the tool-call limit."
     trace.cited_nct_ids = sorted(set(re.findall(r"NCT\d{8}", trace.answer)))

@@ -1,7 +1,7 @@
 # The app installs the project package from the parent folder plus its RAG dependencies.
 # When deploying, copy src/trial_signal into app/ (or sync the whole repo and set the source path to app/).
 streamlit>=1.38
-anthropic>=0.40
+openai>=1.40
 pydantic>=2.6
 databricks-sdk>=0.30
 databricks-sql-connector>=3.0

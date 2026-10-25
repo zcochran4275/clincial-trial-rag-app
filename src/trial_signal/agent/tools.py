@@ -1,6 +1,6 @@
 """Tool definitions the extraction agent can call (Phase 3).
 
-Docs: https://docs.claude.com/en/docs/agents-and-tools/tool-use/overview
+Docs: https://platform.openai.com/docs/guides/function-calling
 
 Design rules (these are your interview talking points on agent safety):
   * The agent never gets network access or credentials. It reads sample records we hand it.

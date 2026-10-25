@@ -47,24 +47,37 @@ def test_get_trial_rejects_bad_id():
     assert "error" in out
 
 
-# --- agent loop with a scripted fake Claude client ---------------------------------------
+# --- agent loop with a scripted fake OpenAI client ---------------------------------------
 
-def _msg(stop, blocks):
-    return SimpleNamespace(stop_reason=stop, content=blocks, usage=SimpleNamespace(input_tokens=10, output_tokens=5))
+def _msg(content, tool_calls=None):
+    message = SimpleNamespace(content=content, tool_calls=tool_calls)
+    return SimpleNamespace(choices=[SimpleNamespace(message=message)], usage=SimpleNamespace(prompt_tokens=10, completion_tokens=5))
+
+
+def _call(id, name, args):
+    return SimpleNamespace(id=id, function=SimpleNamespace(name=name, arguments=json.dumps(args)))
 
 
 class FakeClient:
     def __init__(self, script):
-        self.messages = SimpleNamespace(create=lambda **kw: script.pop(0))
+        self.chat = SimpleNamespace(completions=SimpleNamespace(create=lambda **kw: script.pop(0)))
 
 
 def test_agent_loop_traces_tools_and_citations():
     script = [
-        _msg("tool_use", [SimpleNamespace(type="tool_use", id="t1", name="search_trial_text", input={"query": "lapatinib exclusion"})]),
-        _msg("end_turn", [SimpleNamespace(type="text", text="It excluded recent lapatinib use [NCT00000001].")]),
+        _msg(None, [_call("t1", "search_trial_text", {"query": "lapatinib exclusion"})]),
+        _msg("It excluded recent lapatinib use [NCT00000001]."),
     ]
     t = answer("Did it exclude lapatinib?", FakeBackend(), client=FakeClient(script))
     assert t.turns == 2
     assert t.retrieved_chunks == ["NCT00000001:eligibility:2"]
     assert t.cited_nct_ids == ["NCT00000001"]
     assert t.input_tokens == 20
+
+
+def test_agent_loop_returns_bad_json_args_to_model():
+    bad = SimpleNamespace(id="t1", function=SimpleNamespace(name="query_sql", arguments="{not json"))
+    script = [_msg(None, [bad]), _msg("No data.")]
+    client = FakeClient(script)
+    t = answer("q", FakeBackend(), client=client)
+    assert t.answer == "No data." and t.tool_calls == [{"name": "query_sql", "args": {}}]

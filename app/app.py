@@ -1,6 +1,6 @@
 """Streamlit chat UI for the trial-signal RAG agent, deployed as a Databricks App.
 
-Local:      cd app && streamlit run app.py      (uses .env: DATABRICKS_HOST/TOKEN, DATABRICKS_WAREHOUSE_ID, ANTHROPIC_API_KEY)
+Local:      cd app && streamlit run app.py      (uses .env: DATABRICKS_HOST/TOKEN, DATABRICKS_WAREHOUSE_ID, OPENAI_API_KEY)
 Databricks: Compute > Apps > Create app, point it at this folder; see app.yaml.
 """
 from __future__ import annotations

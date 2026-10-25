@@ -9,3 +9,4 @@ data/gold/
 dbt/target/
 dbt/logs/
 eval/runs/
+*.egg-info/

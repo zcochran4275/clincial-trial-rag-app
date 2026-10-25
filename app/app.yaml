@@ -5,7 +5,7 @@
 # Before deploying, add two resources to the app in the UI (Compute > Apps > Edit > Resources),
 # using these exact resource keys so valueFrom resolves:
 #   sql_warehouse -> your SQL warehouse (Can use)
-#   secret        -> secret scope "trial-signal", key "anthropic-api-key" (Can read)
+#   secret        -> secret scope "trial-signal", key "openai-api-key" (Can read)
 # DATABRICKS_HOST / CLIENT_ID / CLIENT_SECRET for the app's service principal are set automatically.
 # Free Edition: apps stop after 24h; restart from the app page before a demo.
 command: ["streamlit", "run", "app.py"]
@@ -13,7 +13,7 @@ command: ["streamlit", "run", "app.py"]
 env:
   - name: DATABRICKS_WAREHOUSE_ID
     valueFrom: sql_warehouse
-  - name: ANTHROPIC_API_KEY
+  - name: OPENAI_API_KEY
     valueFrom: secret
   - name: DATABRICKS_CATALOG
     value: "workspace"

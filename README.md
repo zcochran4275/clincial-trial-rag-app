@@ -3,19 +3,19 @@
 **Do the side effects reported in HER2-targeted cancer drug trials match what patients report after approval?**
 
 An agentic data pipeline that pulls completed HER2-therapy trials from ClinicalTrials.gov, uses
-Claude to extract structured fields from free text, and compares trial-reported adverse events with
+an LLM (OpenAI) to extract structured fields from free text, and compares trial-reported adverse events with
 post-market FDA adverse event reports (FAERS) using proportional reporting ratios.
 
 ```
 ClinicalTrials.gov v2 ─┐                                   ┌─ silver_trials
                        ├─► bronze (raw JSON + provenance) ─┤─ silver_arm_adverse_events ─► dbt gold ─► dashboard
 openFDA FAERS ─────────┘        Parquet                    └─ agent-extracted fields
-                                                               (Claude + Docker sandbox + pytest)
+                                                               (OpenAI + Docker sandbox + pytest)
         └──────────────────── orchestrated by Prefect ──────── stored on Databricks (Unity Catalog) ┘
 ```
 
 ## Stack
-Python · Claude API (tool use) · Pydantic · pytest · Docker · Prefect · Parquet · Databricks · dbt
+Python · OpenAI API (function calling) · Pydantic · pytest · Docker · Prefect · Parquet · Databricks · dbt
 
 ## Quickstart
 ```bash
