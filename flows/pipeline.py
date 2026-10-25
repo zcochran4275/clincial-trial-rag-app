@@ -12,15 +12,16 @@ import pandas as pd
 from prefect import flow, get_run_logger, task
 
 from trial_signal.bronze import to_bronze_frame, write_bronze
-from trial_signal.config import BRONZE_DIR, HER2_DRUGS, SILVER_DIR
+from trial_signal.config import BRONZE_DIR, HER2_DRUGS, SILVER_DIR, ctgov_term
 from trial_signal.ingest import ctgov, openfda
-from trial_signal.silver.flatten import flatten_adverse_events, flatten_trial
+from trial_signal.silver.flatten import REJECT_DTYPES, flatten_adverse_events, flatten_trial
 
 
 @task(retries=3, retry_delay_seconds=[5, 30, 120])
 def fetch_ctgov(drug: str, max_pages: int | None) -> str:
-    studies = list(ctgov.iter_studies(drug, max_pages=max_pages))
-    df = to_bronze_frame(studies, "ctgov", drug, ctgov.nct_id)
+    term = ctgov_term(drug)
+    studies = list(ctgov.iter_studies(term, max_pages=max_pages))
+    df = to_bronze_frame(studies, "ctgov", term, ctgov.nct_id)
     return str(write_bronze(df, BRONZE_DIR / "ctgov", drug.replace(" ", "_")))
 
 
@@ -46,7 +47,8 @@ def build_silver(bronze_paths: list[str]) -> dict[str, int]:
     SILVER_DIR.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(trials).to_parquet(SILVER_DIR / "trials.parquet", index=False)
     pd.DataFrame(events).to_parquet(SILVER_DIR / "arm_adverse_events.parquet", index=False)
-    pd.DataFrame(rejects).to_parquet(SILVER_DIR / "rejects.parquet", index=False)
+    rejects_df = pd.DataFrame(rejects, columns=list(REJECT_DTYPES)).astype(REJECT_DTYPES)
+    rejects_df.to_parquet(SILVER_DIR / "rejects.parquet", index=False)
     stats = {"trials": len(trials), "ae_rows": len(events), "rejects": len(rejects)}
     log.info("silver built: %s", stats)
     if events and len(rejects) / (len(events) + len(rejects)) > 0.05:

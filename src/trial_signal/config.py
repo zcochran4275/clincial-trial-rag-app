@@ -28,6 +28,15 @@ HER2_DRUGS: list[str] = [
     "fam-trastuzumab deruxtecan-nxki",
 ]
 
+# ClinicalTrials.gov registrations don't use the FDA suffixed names; search these instead.
+CTGOV_SEARCH_TERMS: dict[str, str] = {
+    "fam-trastuzumab deruxtecan-nxki": "trastuzumab deruxtecan",
+}
+
+
+def ctgov_term(drug: str) -> str:
+    return CTGOV_SEARCH_TERMS.get(drug, drug)
+
 CTGOV_BASE = "https://clinicaltrials.gov/api/v2"
 OPENFDA_EVENT_URL = "https://api.fda.gov/drug/event.json"
 

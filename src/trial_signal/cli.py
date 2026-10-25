@@ -14,7 +14,7 @@ from pathlib import Path
 import pandas as pd
 
 from trial_signal.bronze import to_bronze_frame, write_bronze
-from trial_signal.config import BRONZE_DIR, HER2_DRUGS, SILVER_DIR
+from trial_signal.config import BRONZE_DIR, HER2_DRUGS, SILVER_DIR, ctgov_term
 from trial_signal.ingest import ctgov
 from trial_signal.silver.flatten import REJECT_DTYPES, flatten_adverse_events, flatten_trial
 
@@ -22,8 +22,9 @@ from trial_signal.silver.flatten import REJECT_DTYPES, flatten_adverse_events, f
 def cmd_fetch(args: argparse.Namespace) -> None:
     drugs = [args.drug] if args.drug else HER2_DRUGS
     for drug in drugs:
-        studies = list(ctgov.iter_studies(drug, max_pages=args.max_pages))
-        df = to_bronze_frame(studies, "ctgov", drug, ctgov.nct_id)
+        term = ctgov_term(drug)
+        studies = list(ctgov.iter_studies(term, max_pages=args.max_pages))
+        df = to_bronze_frame(studies, "ctgov", term, ctgov.nct_id)
         path = write_bronze(df, BRONZE_DIR / "ctgov", drug.replace(" ", "_"))
         print(f"{drug}: {len(df)} studies -> {path}")
 

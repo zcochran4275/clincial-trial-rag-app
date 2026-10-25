@@ -47,3 +47,10 @@ def test_bronze_dedupes_same_study_from_two_queries(tucatinib_study):
     assert len(df) == 1
     assert df.loc[0, "record_key"] == "NCT00000001"
     assert len(df.loc[0, "content_sha256"]) == 64
+
+
+def test_ctgov_search_uses_registry_name_not_fda_suffix():
+    from trial_signal.config import ctgov_term
+
+    assert ctgov_term("fam-trastuzumab deruxtecan-nxki") == "trastuzumab deruxtecan"
+    assert ctgov_term("tucatinib") == "tucatinib"
