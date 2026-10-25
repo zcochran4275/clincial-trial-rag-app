@@ -1,8 +1,10 @@
+import pandas as pd
+import pyarrow.parquet as pq
 import pytest
 from pydantic import ValidationError
 
 from trial_signal.schemas import ArmAdverseEvent, Trial
-from trial_signal.silver.flatten import flatten_adverse_events, flatten_trial
+from trial_signal.silver.flatten import REJECT_DTYPES, flatten_adverse_events, flatten_trial
 
 
 def test_flatten_trial_core_fields(tucatinib_study):
@@ -25,6 +27,19 @@ def test_adverse_events_one_row_per_term_per_arm(tucatinib_study):
     assert len(rows) == 5
     assert len(rejects) == 1
     assert "affected > at risk" in rejects[0]["reason"]
+
+
+def test_reject_columns_match_declared_schema(tucatinib_study):
+    _, rejects = flatten_adverse_events(tucatinib_study)
+    assert list(rejects[0]) == list(REJECT_DTYPES)
+
+
+def test_empty_rejects_still_write_typed_columns(tmp_path):
+    path = tmp_path / "rejects.parquet"
+    pd.DataFrame([], columns=list(REJECT_DTYPES)).astype(REJECT_DTYPES).to_parquet(path, index=False)
+    schema = pq.read_schema(path)
+    assert schema.names == list(REJECT_DTYPES)
+    assert str(schema.field("num_affected").type) == "int64" and "string" in str(schema.field("term").type)
 
 
 def test_adverse_event_rates_are_proportions(tucatinib_study):

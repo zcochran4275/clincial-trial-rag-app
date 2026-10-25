@@ -38,6 +38,22 @@ def flatten_trial(study: dict[str, Any]) -> Trial:
     )
 
 
+# Typed so an empty rejects file still has columns; Databricks can't infer a schema from zero columns.
+REJECT_DTYPES: dict[str, str] = {
+    "nct_id": "string",
+    "group_id": "string",
+    "group_title": "string",
+    "seriousness": "string",
+    "term": "string",
+    "organ_system": "string",
+    "source_vocabulary": "string",
+    "num_affected": "Int64",
+    "num_at_risk": "Int64",
+    "num_events": "Int64",
+    "reason": "string",
+}
+
+
 def flatten_adverse_events(study: dict[str, Any]) -> tuple[list[ArmAdverseEvent], list[dict[str, Any]]]:
     """Return (valid rows, rejects). Rejects carry the reason so the QC report can count them."""
     nct = _get(study, "protocolSection", "identificationModule", "nctId")

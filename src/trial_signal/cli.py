@@ -16,7 +16,7 @@ import pandas as pd
 from trial_signal.bronze import to_bronze_frame, write_bronze
 from trial_signal.config import BRONZE_DIR, HER2_DRUGS, SILVER_DIR
 from trial_signal.ingest import ctgov
-from trial_signal.silver.flatten import flatten_adverse_events, flatten_trial
+from trial_signal.silver.flatten import REJECT_DTYPES, flatten_adverse_events, flatten_trial
 
 
 def cmd_fetch(args: argparse.Namespace) -> None:
@@ -41,7 +41,8 @@ def cmd_silver(args: argparse.Namespace) -> None:
     SILVER_DIR.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(trials).to_parquet(SILVER_DIR / "trials.parquet", index=False)
     pd.DataFrame(events).to_parquet(SILVER_DIR / "arm_adverse_events.parquet", index=False)
-    pd.DataFrame(rejects).to_parquet(SILVER_DIR / "rejects.parquet", index=False)
+    rejects_df = pd.DataFrame(rejects, columns=list(REJECT_DTYPES)).astype(REJECT_DTYPES)
+    rejects_df.to_parquet(SILVER_DIR / "rejects.parquet", index=False)
     print(f"trials={len(trials)} ae_rows={len(events)} rejects={len(rejects)}")
 
 
@@ -79,7 +80,7 @@ def main() -> None:
     s.set_defaults(func=cmd_silver)
     c = sub.add_parser("chunks", help="build trial_chunks.parquet for vector search")
     c.set_defaults(func=cmd_chunks)
-    a = sub.add_parser("ask", help="ask the RAG agent a question (needs Databricks + Anthropic keys)")
+    a = sub.add_parser("ask", help="ask the RAG agent a question (needs Databricks + OpenAI keys)")
     a.add_argument("question")
     a.set_defaults(func=cmd_ask)
     args = p.parse_args()
