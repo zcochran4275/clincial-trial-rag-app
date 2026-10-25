@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: silver
+    schema: trial_signal
+    tables:
+      - name: silver_trials
+        columns:
+          - name: nct_id
+            tests: [unique, not_null]
+      - name: silver_arm_adverse_events
+        columns:
+          - name: nct_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('silver', 'silver_trials')
+                  field: nct_id

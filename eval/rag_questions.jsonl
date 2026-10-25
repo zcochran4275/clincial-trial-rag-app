@@ -1,0 +1,6 @@
+{"id": "q01", "type": "lookup", "question": "What was the primary outcome of NCT________?", "gold_answer": "", "gold_nct_ids": [], "gold_chunk_ids": []}
+{"id": "q02", "type": "filter", "question": "Which tucatinib trials allowed patients with untreated brain metastases?", "gold_answer": "", "gold_nct_ids": [], "gold_chunk_ids": []}
+{"id": "q03", "type": "aggregate", "question": "Across all trial arms in the dataset, what is the pooled rate of diarrhoea?", "gold_answer": "", "gold_nct_ids": [], "gold_chunk_ids": []}
+{"id": "q04", "type": "synthesis", "question": "How did neratinib trials define HER2 positivity?", "gold_answer": "", "gold_nct_ids": [], "gold_chunk_ids": []}
+{"id": "q05", "type": "comparison", "question": "Is interstitial lung disease a FAERS signal for trastuzumab deruxtecan, and how often was it reported in its trials?", "gold_answer": "", "gold_nct_ids": [], "gold_chunk_ids": []}
+{"id": "q06", "type": "unanswerable", "question": "What was the median overall survival for pertuzumab in patients over 80?", "gold_answer": "NOT_IN_DATA", "gold_nct_ids": [], "gold_chunk_ids": []}

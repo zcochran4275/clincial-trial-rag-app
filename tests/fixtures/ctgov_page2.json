@@ -1,0 +1,12 @@
+{
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {"nctId": "NCT00000003", "briefTitle": "Example Lapatinib Study"},
+        "statusModule": {"overallStatus": "COMPLETED"},
+        "designModule": {"phases": ["PHASE3"], "enrollmentInfo": {"count": 400}}
+      },
+      "hasResults": true
+    }
+  ]
+}

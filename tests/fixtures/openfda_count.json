@@ -1,0 +1,8 @@
+{
+  "meta": {"disclaimer": "Do not rely on openFDA to make decisions regarding medical care.", "results": {"skip": 0, "limit": 3, "total": 3}},
+  "results": [
+    {"term": "DIARRHOEA", "count": 2100},
+    {"term": "NAUSEA", "count": 640},
+    {"term": "PALMAR-PLANTAR ERYTHRODYSAESTHESIA SYNDROME", "count": 410}
+  ]
+}

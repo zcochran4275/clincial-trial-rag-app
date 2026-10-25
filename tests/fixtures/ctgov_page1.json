@@ -1,0 +1,61 @@
+{
+  "totalCount": 3,
+  "nextPageToken": "PAGE2TOKEN",
+  "studies": [
+    {
+      "protocolSection": {
+        "identificationModule": {"nctId": "NCT00000001", "briefTitle": "Example Tucatinib + Trastuzumab Study in HER2+ MBC"},
+        "statusModule": {"overallStatus": "COMPLETED", "startDateStruct": {"date": "2016-02"}, "completionDateStruct": {"date": "2021-05"}},
+        "conditionsModule": {"conditions": ["HER2-positive Metastatic Breast Cancer"]},
+        "designModule": {"phases": ["PHASE2"], "enrollmentInfo": {"count": 612, "type": "ACTUAL"}},
+        "descriptionModule": {"briefSummary": "Randomized, double-blind study of tucatinib or placebo with trastuzumab and capecitabine in HER2+ metastatic breast cancer, including patients with brain metastases.", "detailedDescription": "Patients are randomized 2:1.\n\nTreatment continues until progression or unacceptable toxicity."},
+        "armsInterventionsModule": {
+          "armGroups": [{"label": "Tucatinib + Trastuzumab + Capecitabine", "type": "EXPERIMENTAL", "description": "Tucatinib 300 mg orally twice daily", "interventionNames": ["Drug: Tucatinib", "Drug: Trastuzumab", "Drug: Capecitabine"]}],
+          "interventions": [{"type": "DRUG", "name": "Tucatinib"}, {"type": "DRUG", "name": "Trastuzumab"}, {"type": "DRUG", "name": "Placebo"}]},
+        "outcomesModule": {"primaryOutcomes": [{"measure": "Progression-free survival (PFS)", "description": "Time from randomization to progression or death, per RECIST 1.1 by central review", "timeFrame": "Up to 3 years"}]},
+        "eligibilityModule": {"eligibilityCriteria": "Inclusion Criteria:\n\n* HER2+ by central lab (IHC 3+ or ISH+)\n* Prior trastuzumab, pertuzumab and T-DM1\n\nExclusion Criteria:\n\n* Prior lapatinib within 12 months"}
+      },
+      "resultsSection": {
+        "adverseEventsModule": {
+          "frequencyThreshold": "5",
+          "eventGroups": [
+            {"id": "EG000", "title": "Tucatinib + Trastuzumab + Capecitabine", "seriousNumAffected": 106, "seriousNumAtRisk": 404},
+            {"id": "EG001", "title": "Placebo + Trastuzumab + Capecitabine", "seriousNumAffected": 53, "seriousNumAtRisk": 197}
+          ],
+          "seriousEvents": [
+            {"term": "Diarrhoea", "organSystem": "Gastrointestinal disorders", "sourceVocabulary": "MedDRA (23.0)", "assessmentType": "SYSTEMATIC_ASSESSMENT",
+             "stats": [{"groupId": "EG000", "numEvents": 18, "numAffected": 16, "numAtRisk": 404}, {"groupId": "EG001", "numEvents": 4, "numAffected": 3, "numAtRisk": 197}]}
+          ],
+          "otherEvents": [
+            {"term": "Diarrhoea", "organSystem": "Gastrointestinal disorders", "sourceVocabulary": "MedDRA (23.0)",
+             "stats": [{"groupId": "EG000", "numEvents": 560, "numAffected": 328, "numAtRisk": 404}, {"groupId": "EG001", "numEvents": 180, "numAffected": 105, "numAtRisk": 197}]},
+            {"term": "Palmar-plantar erythrodysaesthesia syndrome", "organSystem": "Skin and subcutaneous tissue disorders", "sourceVocabulary": "MedDRA (23.0)",
+             "stats": [{"groupId": "EG000", "numEvents": 300, "numAffected": 256, "numAtRisk": 404}, {"groupId": "EG001", "numEvents": 140, "numAffected": 210, "numAtRisk": 197}]}
+          ]
+        }
+      },
+      "hasResults": true
+    },
+    {
+      "protocolSection": {
+        "identificationModule": {"nctId": "NCT00000002", "briefTitle": "Example Neratinib Adjuvant Study"},
+        "statusModule": {"overallStatus": "COMPLETED"},
+        "designModule": {"phases": ["PHASE3"], "enrollmentInfo": {"count": 2840}},
+        "armsInterventionsModule": {"interventions": [{"type": "DRUG", "name": "Neratinib"}]}
+      },
+      "resultsSection": {
+        "adverseEventsModule": {
+          "eventGroups": [{"id": "EG000", "title": "Neratinib"}],
+          "seriousEvents": [],
+          "otherEvents": [
+            {"term": "  ", "organSystem": "General disorders",
+             "stats": [{"groupId": "EG000", "numAffected": 10, "numAtRisk": 1408}]},
+            {"term": "Nausea", "organSystem": "Gastrointestinal disorders", "sourceVocabulary": "MedDRA (18.0)",
+             "stats": [{"groupId": "EG000", "numAffected": 605, "numAtRisk": 1408}]}
+          ]
+        }
+      },
+      "hasResults": true
+    }
+  ]
+}

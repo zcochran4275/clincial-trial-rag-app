@@ -1,0 +1,13 @@
+name: trial_signal
+version: "0.1.0"
+config-version: 2
+profile: trial_signal
+
+model-paths: ["models"]
+
+models:
+  trial_signal:
+    staging:
+      +materialized: view
+    gold:
+      +materialized: table

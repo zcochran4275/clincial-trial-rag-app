@@ -1,0 +1,32 @@
+[project]
+name = "trial-signal"
+version = "0.1.0"
+description = "Agentic pipeline: ClinicalTrials.gov + openFDA adverse events for HER2-targeted therapies"
+requires-python = ">=3.11"
+dependencies = [
+  "requests>=2.31",
+  "pydantic>=2.6",
+  "pandas>=2.2",
+  "pyarrow>=15",
+  "prefect>=3.0",
+  "anthropic>=0.40",
+  "python-dotenv>=1.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5"]
+databricks = ["databricks-sdk>=0.30", "databricks-sql-connector>=3.0"]
+dbt = ["dbt-databricks>=1.8"]
+rag = ["databricks-ai-search", "databricks-sdk>=0.30", "databricks-sql-connector>=3.0", "streamlit>=1.38", "mlflow>=2.17"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["live: hits real APIs (deselect with -m 'not live')"]
+addopts = "-m 'not live'"
