@@ -4,7 +4,11 @@ import pytest
 from pydantic import ValidationError
 
 from trial_signal.schemas import ArmAdverseEvent, Trial
-from trial_signal.silver.flatten import REJECT_DTYPES, flatten_adverse_events, flatten_trial
+from trial_signal.silver.flatten import (
+    REJECT_DTYPES,
+    flatten_adverse_events,
+    flatten_trial,
+)
 
 
 def test_flatten_trial_core_fields(tucatinib_study):

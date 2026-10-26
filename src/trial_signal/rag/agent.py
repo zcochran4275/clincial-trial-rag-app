@@ -68,7 +68,7 @@ def answer(question: str, backend: Backend, client=None, model: str = MODEL) -> 
         for tc in msg.tool_calls:
             try:
                 args = llm.tool_args(tc)
-            except ValueError as e:
+            except (ValueError, TypeError) as e:
                 args, out = {}, json.dumps({"error": f"bad arguments: {e}"})
             else:
                 out = run_tool(tc.function.name, args, backend)

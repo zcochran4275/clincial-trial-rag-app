@@ -14,7 +14,8 @@ MODEL = os.getenv("OPENAI_MODEL", "gpt-5")
 
 
 def client():
-    from openai import OpenAI  # imported here so tests don't need the SDK; reads OPENAI_API_KEY
+    # imported here so tests don't need the SDK; reads OPENAI_API_KEY
+    from openai import OpenAI
 
     return OpenAI()
 
@@ -38,10 +39,10 @@ def assistant_message(msg) -> dict[str, Any]:
 
 
 def tool_args(tc) -> dict[str, Any]:
-    """Arguments arrive as a JSON string; malformed JSON raises ValueError for the caller to report."""
+    """Arguments arrive as a JSON string; malformed input raises ValueError/TypeError for the caller to report."""
     args = json.loads(tc.function.arguments or "{}")
     if not isinstance(args, dict):
-        raise ValueError("tool arguments must be a JSON object")
+        raise TypeError("tool arguments must be a JSON object")
     return args
 
 

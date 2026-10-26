@@ -7,7 +7,9 @@ from __future__ import annotations
 
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+from trial_signal.config import HER2_DRUGS
 
 
 class Trial(BaseModel):
@@ -54,3 +56,36 @@ class ArmAdverseEvent(BaseModel):
     @property
     def rate(self) -> float | None:
         return self.num_affected / self.num_at_risk if self.num_at_risk else None
+
+
+# --- Phase 3 agent output contracts ---------------------------------------------------------
+# The agent's extract(study) must return a dict that validates against one of these.
+
+
+class EligibilityExtraction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    her2_definition: str | None = None
+    requires_prior_trastuzumab: bool | None = None
+    allows_brain_mets: bool | None = None
+    min_age: int | None = Field(default=None, ge=0, le=120)
+
+
+class DrugMapping(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str
+    generic: str | None
+
+    @field_validator("generic")
+    @classmethod
+    def generic_in_scope(cls, v: str | None) -> str | None:
+        if v is not None and v not in HER2_DRUGS:
+            raise ValueError(f"{v!r} is not one of the study's generic names")
+        return v
+
+
+class DrugNormalization(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    interventions: list[DrugMapping]

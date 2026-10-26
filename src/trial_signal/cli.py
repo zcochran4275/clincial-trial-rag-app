@@ -3,6 +3,7 @@
     python -m trial_signal.cli fetch --drug tucatinib --max-pages 1
     python -m trial_signal.cli silver
     python -m trial_signal.cli chunks
+    python -m trial_signal.cli agent --task eligibility --samples 30
     python -m trial_signal.cli ask "Which tucatinib trials allowed active brain metastases?"
 """
 from __future__ import annotations
@@ -16,7 +17,11 @@ import pandas as pd
 from trial_signal.bronze import to_bronze_frame, write_bronze
 from trial_signal.config import BRONZE_DIR, HER2_DRUGS, SILVER_DIR, ctgov_term
 from trial_signal.ingest import ctgov
-from trial_signal.silver.flatten import REJECT_DTYPES, flatten_adverse_events, flatten_trial
+from trial_signal.silver.flatten import (
+    REJECT_DTYPES,
+    flatten_adverse_events,
+    flatten_trial,
+)
 
 
 def cmd_fetch(args: argparse.Namespace) -> None:
@@ -61,6 +66,16 @@ def cmd_chunks(args: argparse.Namespace) -> None:
         print(df["section"].value_counts().to_string())
 
 
+def cmd_agent(args: argparse.Namespace) -> None:
+    import logging
+
+    from trial_signal.agent.loop import run_task
+
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
+    summary = run_task(args.task, n_samples=args.samples, seed=args.seed)
+    print(json.dumps(summary, indent=2))
+
+
 def cmd_ask(args: argparse.Namespace) -> None:
     from trial_signal.rag.agent import answer
     from trial_signal.rag.tools import DatabricksBackend
@@ -81,6 +96,11 @@ def main() -> None:
     s.set_defaults(func=cmd_silver)
     c = sub.add_parser("chunks", help="build trial_chunks.parquet for vector search")
     c.set_defaults(func=cmd_chunks)
+    g = sub.add_parser("agent", help="run the Phase 3 extraction agent (needs Docker + OpenAI key)")
+    g.add_argument("--task", required=True, choices=["eligibility", "drug_normalization"])
+    g.add_argument("--samples", type=int, default=30)
+    g.add_argument("--seed", type=int, default=0)
+    g.set_defaults(func=cmd_agent)
     a = sub.add_parser("ask", help="ask the RAG agent a question (needs Databricks + OpenAI keys)")
     a.add_argument("question")
     a.set_defaults(func=cmd_ask)
