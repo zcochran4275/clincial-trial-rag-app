@@ -237,17 +237,20 @@ def validate_outputs(task: str, results: list[dict[str, Any]]) -> tuple[list[dic
     return valid, rejects
 
 
-def write_samples(dest: Path, n: int, seed: int = 0) -> list[str]:
-    """Pick n trials from bronze and write protocolSection-only JSON (results tables aren't needed)."""
+def pick_studies(n: int, seed: int = 0) -> list[dict[str, Any]]:
+    """Deterministic random sample of raw studies from bronze: agent runs and hand-labeling share it."""
     files = sorted((BRONZE_DIR / "ctgov").glob("*.parquet"))
     if not files:
         raise FileNotFoundError("no bronze data; run `cli fetch` first")
     bronze = pd.concat([pd.read_parquet(f) for f in files]).drop_duplicates("record_key", keep="last")
-    picked = bronze.sample(n=min(n, len(bronze)), random_state=seed)
+    return [json.loads(raw) for raw in bronze.sample(n=min(n, len(bronze)), random_state=seed)["raw_json"]]
+
+
+def write_samples(dest: Path, n: int, seed: int = 0) -> list[str]:
+    """Write n picked trials as protocolSection-only JSON (results tables aren't needed)."""
     dest.mkdir(parents=True, exist_ok=True)
     ids = []
-    for raw in picked["raw_json"]:
-        study = json.loads(raw)
+    for study in pick_studies(n, seed):
         nct = study["protocolSection"]["identificationModule"]["nctId"]
         (dest / f"{nct}.json").write_text(json.dumps({"protocolSection": study["protocolSection"]}), encoding="utf-8")
         ids.append(nct)
@@ -272,7 +275,7 @@ def run_task(task: str, n_samples: int = 30, seed: int = 0, model: str = MODEL) 
     summary: dict[str, Any] = {"run_id": run_id, "n_samples": len(sample_ids), "seed": seed, **asdict(run)}
     if run.submitted:
         valid, rejects = validate_outputs(task, sandbox.apply_extract(workspace, samples))
-        pd.DataFrame(valid).to_json(run_dir / "outputs.jsonl", orient="records", lines=True)
+        (run_dir / "outputs.jsonl").write_text("".join(json.dumps(v) + "\n" for v in valid), encoding="utf-8")
         (run_dir / "rejects.json").write_text(json.dumps(rejects, indent=2), encoding="utf-8")
         summary |= {"n_valid": len(valid), "n_rejected": len(rejects), "pydantic_valid_rate": round(len(valid) / len(sample_ids), 3)}
 

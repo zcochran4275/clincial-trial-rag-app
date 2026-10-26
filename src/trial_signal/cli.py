@@ -4,6 +4,7 @@
     python -m trial_signal.cli silver
     python -m trial_signal.cli chunks
     python -m trial_signal.cli agent --task eligibility --samples 30
+    python -m trial_signal.cli labels --n 30
     python -m trial_signal.cli ask "Which tucatinib trials allowed active brain metastases?"
 """
 from __future__ import annotations
@@ -76,6 +77,13 @@ def cmd_agent(args: argparse.Namespace) -> None:
     print(json.dumps(summary, indent=2))
 
 
+def cmd_labels(args: argparse.Namespace) -> None:
+    from trial_signal.scoring import GROUND_TRUTH, build_label_sheet
+
+    sheet, added = build_label_sheet(args.n, args.seed)
+    print(f"label sheet: {sheet}\nground truth: {GROUND_TRUTH} (+{added} unlabeled rows)")
+
+
 def cmd_ask(args: argparse.Namespace) -> None:
     from trial_signal.rag.agent import answer
     from trial_signal.rag.tools import DatabricksBackend
@@ -101,6 +109,10 @@ def main() -> None:
     g.add_argument("--samples", type=int, default=30)
     g.add_argument("--seed", type=int, default=0)
     g.set_defaults(func=cmd_agent)
+    lb = sub.add_parser("labels", help="write the Phase 4 label sheet + ground_truth.jsonl skeleton")
+    lb.add_argument("--n", type=int, default=30)
+    lb.add_argument("--seed", type=int, default=0)
+    lb.set_defaults(func=cmd_labels)
     a = sub.add_parser("ask", help="ask the RAG agent a question (needs Databricks + OpenAI keys)")
     a.add_argument("question")
     a.set_defaults(func=cmd_ask)

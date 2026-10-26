@@ -9,3 +9,17 @@
 5. Report: field-level precision/recall, % runs passing without human edits, median turns, cost per trial.
 
 Label before you look at agent output, so the agent can't anchor your labels.
+
+## Commands
+
+```powershell
+python -m trial_signal.cli labels --n 30 --seed 0   # eval/runs/label_sheet.md + unlabeled rows in ground_truth.jsonl
+# label from the sheet only (don't open data/agent/*/outputs.jsonl first), set "labeled": true per trial
+python -m trial_signal.cli agent --task eligibility --samples 30      # repeat 3-5x per task; LLM output varies
+python -m trial_signal.cli agent --task drug_normalization --samples 30
+python eval/score_agent.py                          # precision/recall/accuracy (mean +- sd over runs), cost, reliability
+```
+
+Use the same `--n/--seed` for labels and agent runs so the labeled trials are the ones the agent saw.
+Metric definitions are in `src/trial_signal/scoring.py`. Prices default to gpt-5 list prices; set
+`OPENAI_PRICE_IN_PER_M` / `OPENAI_PRICE_OUT_PER_M` if you change model.
