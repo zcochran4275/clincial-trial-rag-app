@@ -10,3 +10,4 @@ dbt/target/
 dbt/logs/
 eval/runs/
 *.egg-info/
+data/agent/
